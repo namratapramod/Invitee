@@ -1,0 +1,33 @@
+﻿@model Invitee.ViewModels.ImageCostViewModel
+
+@using Invitee.Utils.Helpers
+@{
+    ViewBag.Title = "Create";
+}
+<div class="card card-default">
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "Add New ImageCost" } })
+    @using (Html.BeginForm("Create", "ImageCost", FormMethod.Post, new { @role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="card-body">
+            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+            @Html.BootStrapTextBoxFor(m => m.ImageCount, "Image Count", "","number")
+            @Html.BootStrapTextBoxFor(m => m.Cost, "Image Cost", "","number")
+            @Html.BootStrapTextBoxFor(m => m.OfferInPercentage, "Offer (Percentage)", "","number")
+        </div>
+
+        <div class="card-footer">
+            <input type="submit" class="btn btn-primary" value="Submit" />
+        </div>
+    }
+</div>
+@section scripts{
+    @if (ViewBag.Success != null)
+    {
+        <script>
+                    swal.fire("Success!", `The imagecost was created successfully!`, "success").then((result) => {
+                        location.href = "@Url.Action("Index")";
+                    });
+        </script>
+    }
+}
