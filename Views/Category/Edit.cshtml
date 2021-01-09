@@ -1,0 +1,41 @@
+﻿
+@{
+    ViewBag.Title = "Edit";
+}
+@model Invitee.ViewModels.CategoryViewModel
+@using Invitee.Utils.Helpers
+<div class="card card-default">
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "Edit Category" } })
+    @using (Html.BeginForm("Edit", "Category", FormMethod.Post, new { @role = "form", enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+    <div class="card-body" id="valError">
+        @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.ImageUrl)
+        @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+        @Html.BootStrapTextBoxFor(m => m.Name, "Category Name", placeHolder: "Enter Category Name")
+        @Html.BootStrapTextAreaFor(m => m.Description, "Category Description", "Enter Category Description")
+        @Html.BootStrapTextBoxFor(m => m.ExtraInputOne, "Extra Input One", placeHolder: "Enter Extra Input One")
+        @Html.BootStrapTextBoxFor(m => m.ExtraInputTwo, "Extra Input Two", placeHolder: "Enter Extra Input Two")
+        <div class='form-group'>
+            <label for='ParentCategoryId'>Parent Category</label>
+            @Html.DropDownListFor(x => x.ParentCategoryId, new SelectList(Model.ParentCategories, "Id", "Name"), "Select Parent Category", htmlAttributes: new { @class = "form-control" })
+        </div>
+        <div class="form-group">
+            <label for="File">Category Image <small class="text-info">(Allowed files .jpg, .png, .gif, jpeg)</small></label>
+            <input type="file" class="form-control" id="File" name="File">
+        </div>
+    </div>
+        <div class="card-footer">
+            <input type="submit" class="btn btn-primary" value="Submit" />
+        </div>
+    }
+</div>
+@section scripts{
+    <script>
+        function OnSuccess(data) {
+            swal.fire("Success!", `The category '${data.Name}' was saved successfully!`, "success").then((result) => {
+            });
+        }
+    </script>
+}

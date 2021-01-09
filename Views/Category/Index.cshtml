@@ -1,0 +1,246 @@
+﻿
+@{
+    ViewBag.Title = "Categories";
+}
+@model IEnumerable<Invitee.ViewModels.CategoryViewModel>
+
+<div class="card card-default">
+
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "Category List" }, { "addbutton", Url.Action("Create") } })
+    <div class="card-body table-responsive">
+
+        <table class="table table-bordered table-hover mtable">
+
+            @if (!Model.Any())
+            {
+                <tbody>
+                    <tr>
+                        <td>No Data Found !</td>
+                    </tr>
+                </tbody>
+            }
+            else
+            {
+                @Invitee.Utils.Helpers.AdminHtmlHelper.TableHelper.BuildTableHeader(Model.FirstOrDefault().GetType(), new string[] { nameof(Invitee.ViewModels.CategoryViewModel.ParentCategories), nameof(Invitee.ViewModels.CategoryViewModel.ParentCategory), nameof(Invitee.ViewModels.CategoryViewModel.ChildCategories), nameof(Invitee.ViewModels.CategoryViewModel.File), nameof(Invitee.ViewModels.CategoryViewModel.ExtraInputOne), nameof(Invitee.ViewModels.CategoryViewModel.ExtraInputTwo)}, new string[] { "ChildCategories", "Action" })
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="parentCatgId">
+                                @item.Id
+                            </td>
+                            <td>
+                                <a href="@Url.Action("Create","MediaTemplate",new {category = item.Id })" data-toggle="tooltip" data-html="true" title="Click to create <b>Template</b> for this <u>Category</u>">
+                                    @item.Name
+                                </a>
+                                
+                            </td>
+                            <td>
+                                @item.Description
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                {
+                                    <a href="/@item.ImageUrl" data-toggle="lightbox" data-title="Image Url">
+                                        <img src="/@item.ImageUrl" class="w-50 img-fluid mb-2" alt="category image" />
+                                    </a>
+                                }
+                            </td>
+                            <td>
+                                @item.ParentCategoryId
+                            </td>
+                            <td>
+                                @item.IsDefault
+                            </td>
+                            <td>
+                                @{
+                                    var childCategories = item.ChildCategories.Select(x => $"<a href='/#' data-id='{x.Id}'>{x.Name}</a>").ToList();
+                                }
+                                @Html.Raw(string.Join(",", childCategories.ToArray()))
+                                <button role='button' class='btn btn-link btnShowCategories'><i class='fa fa-plus-circle' aria-hidden='true'></i> Add</button>
+                            </td>
+                            <td style="width:140px;">
+                                <a class="btn btn-info btn-sm" href="@Url.Action("Edit", new { id = item.Id })">
+                                    <i class="fas fa-pencil-alt">
+                                    </i>
+                                    Edit
+                                </a>
+
+                                <button class="btn btn-danger btn-sm btnDelete">
+                                    <i class="fas fa-trash">
+                                    </i>
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            }
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modal-default">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Child Categories</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group" style="max-height:400px; overflow-y: auto">
+                    @foreach (var item in ViewBag.CategoryList as Dictionary<int, string>)
+                    {
+                        <li class="list-group-item" style="cursor: pointer">
+                            <div class="custom-control custom-checkbox">
+                                <input class="custom-control-input" type="checkbox" data-id="@item.Key" id="customCheckbox2_@item.Key">
+                                <label for="customCheckbox2_@item.Key" class="custom-control-label d-block">@item.Value</label>
+                            </div>
+                        </li>
+
+                    }
+                </ul>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="btnSaveChild" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+@section scripts{
+    <script>
+
+        $(document).ready(function () {
+
+
+            var tb = $(".mtable").DataTable({
+                responsive: true,
+                columnDefs: [
+                    { responsivePriority: 1, targets: 0 },
+                    { responsivePriority: 2, targets: -1 }
+                ]
+            });
+
+
+            //*****Script to check for existing values***//
+            $('.list-group-item').find('input[type=checkbox]').on('change', function () {
+                if (this.checked) {
+
+                    var existingVals = tb.rows().data().toArray().map((v) => { var data = $(v[6]).filter('a').toArray().map((a) => a.innerText); if (data.length > 0) { return data } }).filter((n) => n != undefined);
+                    var currentVal = $(this).next().text();
+                    if (existingVals.filter((n) => n.indexOf(currentVal)>=0).length > 0) {
+                        Swal.fire({
+                            title: 'Are you sure?',
+                            text: "This child category is already being used by some other category.\nThis action will unlink from the previous category do you wish to proceed?",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, proceed!'
+                        }).then((result) => {
+                            if (!result.value) {
+                                this.checked = false;
+                            }
+                        });
+                    }
+                    
+                }
+            })
+
+            $('.mtable').on('click','.btnShowCategories',function () {
+                var parentCategoryId = $(this).parents('tr').prev().find('.parentCatgId').text().trim();
+                $('#modal-default .list-group-item').show();
+                $(this).parent().find('a').each((i, v) => {
+                    $("#modal-default").find(`[data-id='${$(v).data("id")}'`).prop('checked', true);
+                });
+                $('#modal-default .list-group-item').find('[data-id="' + parentCategoryId + '"]').parents('li').hide();
+                $('#btnSaveChild').attr('data-parentid', parentCategoryId);
+                $("#modal-default").modal("show");
+
+            });
+
+            $("#modal-default").on('hidden.bs.modal', function () {
+                $("#modal-default").find('input').prop('checked', false);
+                $('#btnSaveChild').removeAttr('data-parentid');
+            });
+
+            $('#btnSaveChild').on('click', function () {
+                var checkedLists = $('.list-group-item').find('input[type=checkbox]:checked').toArray();
+                var catgIds = [];
+                for (var i of checkedLists) {
+                    catgIds.push($(i).data('id'));
+                }
+                var parentCatgId = $(this).data('parentid');
+                showPreloader('#modal-default .modal-content');
+
+                $.ajax({
+                    url: '/Category/UpdateChildCategories',
+                    type: "POST",
+                    data: JSON.stringify({ childCategories: catgIds, parentCategory: parentCatgId }),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (d) {
+                        swal.fire("Success!", `Updated the child category successfully!`, "success").then((result) => {
+                             location.href = '@Url.Action("Index")';
+                         });
+                    },
+                    error: function (e) {
+                        swal.fire("Error!", "An error occured while updating the child records!", "error");
+                    },
+                    complete: function () {
+                        $('#modal-default').modal("hide");
+                        hidePreLoader('#modal-default .modal-content')
+                    }
+                });
+                console.log(checkedLists);
+            });
+
+            $('td').each((idx, val) => {
+                if($(val).text().lastIndexOf('.jpg') > 0) {
+                    val.innerHTML = `<img src='/Images/CategoryImages/${val.innerText}' width='80' data-action='zoom'/>`;
+                }
+            });
+
+            $('.mtable').on('click', '.btnDelete', function () {
+                thisBtn = $(this);
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Once deleted, you will not be able to recover this category!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.value) {
+                        var idToDelete = thisBtn.parents('tr').find('.parentCatgId').text().trim();
+                        $.ajax({
+                            url: "/Category/Delete",
+                            method: "POST", data: { id: idToDelete }, success: function () {
+                                Swal.fire(
+                                    'Deleted!',
+                                    'The category has been deleted successfully.',
+                                    'success'
+                                ).then(() => thisBtn.parents('tr').hide(800));
+                            },
+                            error: function (e) {
+                                swal.fire("Error!", "An error occured while deleting the category!<br/>Make sure the category this not being used with any other categories or MediaTemplates.", "error");
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}
+
