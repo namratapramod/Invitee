@@ -1,0 +1,139 @@
+﻿@model Invitee.ViewModels.MediaTemplateViewModel
+@using Invitee.Utils.Helpers
+@{
+    ViewBag.Title = "Create";
+}
+<style>
+    [data-role="remove"]{
+        display:none;
+    }
+</style>
+@Html.Partial("Partials/SlideTextControl/_SlideTextStyle")
+<div class="card card-default">
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "Add New Template" } })
+    @using (Html.BeginForm("Create", "MediaTemplate", FormMethod.Post, new { @role = "form", enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+    <div class="card-body">
+        @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+        <div class='form-group'>
+            <label for='CategoryId'>Category</label>
+            @Html.DropDownListFor(x => x.CategoryId, new SelectList(Model.CategoryList, "Id", "Name"), "--Select Category--", htmlAttributes: new { @class = "form-control" })
+        </div>
+        <div class="form-group">
+            <label for='IsAlbumTemplate'>Is Album Template?</label>
+            <input class="form-control" type="checkbox" name="IsAlbumTemplate" id="IsAlbumTemplate" data-on-text="Yes" data-off-text="No">
+        </div>
+        <div class="form-group" id="IsFreeDiv">
+            <label for='IsFree'>Is Free?</label>
+            <input class="form-control" type="checkbox" name="IsFree" id="IsFree" data-on-text="Yes" data-off-text="No">
+        </div>
+        @Html.BootStrapTextBoxFor(x => x.NormalCost, "Template Cost", "Template Cost", "number")
+        @Html.BootStrapTextBoxFor(x => x.OfferPercentage, "Offer (percentage)", "Offer in percentage", "number")
+        <label>Select Costing(s)</label>
+        @Html.DropDownListFor(x => x.CostingIds, new SelectList(Model.CostingList, "Id", "Name"), htmlAttributes: new { @class = "select2 form-control", @multiple = "multiple", data_placeholder = "Select Costings", data_dropdown_css_class = "select2-purple" })
+        @Html.BootStrapTextBoxFor(m => m.ImageCount, "Image Count", placeHolder: "Enter Image Count")
+        <div class="form-group"></div>
+        @Html.BootStrapTextBoxFor(x => x.TemplateName, "Template Name", "Name of the template")
+        @Html.BootStrapTextAreaFor(x => x.TemplateDescription, "Template Description", "Template Description")
+        <div class="form-group">
+            <label for="VideoFile">Video Template File <small class="text-info">(Allowed files mp4, avi, mov, 3gp, mpeg)</small></label>
+            <input type="file" class="form-control" id="VideoFile" name="VideoFile">
+        </div>
+        <div class="form-group">
+            <label for="VideoFile">Video Template File <small class="text-info">(Allowed files .jpg, .png, .gif, jpeg)</small></label>
+            <input type="file" class="form-control" id="VideoThumbnailFile" name="VideoThumbnailFile">
+        </div>
+        @* @AdminHtmlHelper.BuildInput("file", "VideoThumbnailFile", "Video Thumbnail File")*@
+
+        <div class='form-group'>
+            <label for='SlideTextInput'>SlideTexts</label>
+            <input type="text" data-role="tagsinput" readonly class="form-control" value="@Model.SlideTextInput" placeholder="Text on slide 1, Text on slide 2.... Use 'Enter' Key to add multiple values" name="SlideTextInput" id="SlideTextInput">
+        </div>
+
+    </div>
+
+        <div class="card-footer">
+            <input type="submit" class="btn btn-primary" value="Submit" />
+        </div>
+    }
+</div>
+
+<div class="modal fade slideTextModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add/Edit SlideTexts</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div role="form">
+
+
+                    @{Html.RenderPartial("Partials/SlideTextControl/_SlideTextControl", Model.SlideTexts);}
+
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btnSaveChild btn-primary" data-parentid="@Model.Id">Save changes</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+@section scripts{
+
+    @{Html.RenderPartial("Partials/SlideTextControl/_SlideTextScripts");}
+
+    <script>
+        $(document).ready(function () {
+
+            $('.bootstrap-tagsinput input').attr('readonly', 'readonly');
+            $('.bootstrap-tagsinput input').on('click', function () {
+                $('.slideTextModal').modal('show');
+            })
+            $('.btnSaveChild').on('click', function () {
+                var slideTexts = $(this).parents('.modal-content').find('.sortable li .iTxt').toArray().map((v) => v.innerHTML);
+                $('#SlideTextInput').tagsinput('removeAll');
+                $('#SlideTextInput').tagsinput('add', slideTexts.join("|"));
+                $('.slideTextModal').modal('hide');
+            });
+            $('input').on('beforeItemRemove', function (event) {
+                event.cancel = true;
+            });
+
+
+            $('#IsFree').bootstrapSwitch({ onSwitchChange: function (e, s) { $(this).val(s); } });
+            $('#IsAlbumTemplate').bootstrapSwitch({ onSwitchChange: function (e, s) {$(this).val(s);if (s == true) { $("#IsFreeDiv").hide(); }else { $("#IsFreeDiv").show(); }}});
+
+            $("#costingGroup").on("clearCosts", function () {
+                $('#CostingIds').val([]).trigger('change');
+                $('#NormalCost').val(0);
+            });
+            $('.bootstrap-tagsinput').on('dblclick', '.badge-info', function() {
+                $('.bootstrap-tagsinput input').val($(this).text()).change();
+                $('.bootstrap-tagsinput input').val($('.bootstrap-tagsinput input').val().trim() + ' ').trigger('change');
+                $(this).remove();
+            });
+            var costingArray = @Html.Raw(Json.Encode(Model.CostingIds));
+            $('#CostingIds').val(costingArray).trigger('change');
+        });
+
+    </script>
+    @if (ViewBag.Success != null)
+    {
+        <script>
+        swal.fire("Success!", `The media template was created successfully!`, "success").then((result) =>
+        {
+            location.href = "@Url.Action("Index")";
+        });
+        </script>
+
+    }
+}

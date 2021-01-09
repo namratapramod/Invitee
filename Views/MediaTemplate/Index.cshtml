@@ -1,0 +1,313 @@
+﻿@model IEnumerable<Invitee.ViewModels.MediaTemplateViewModel>
+@{
+    ViewBag.Title = "MediaTemplate";
+}
+<style>
+    #buttonVideo {
+        border: none;
+        background: transparent;
+    }
+
+    table td {
+        vertical-align: middle !important;
+    }
+
+</style>
+@Html.Partial("Partials/SlideTextControl/_SlideTextStyle")
+<div class="card card-default">
+
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "MediaTemplate List" }, { "addbutton", Url.Action("Create") } })
+    <div class="card-body" style="max-width:1230px !important">
+
+        <table class="table mtable table-bordered table-hover">
+            <div class="form-group">
+                @Html.DropDownList("CategoryId", new SelectList(ViewBag.CategoryList, "Id", "Name"), "--Select Category--", htmlAttributes: new { @class = "col-3 form-control", @id = "msds-select" })
+            </div>
+            <thead>
+                <tr>
+                    <th data-priority="1">
+                        Id
+                    </th>
+                    <th data-priority="4">
+                        IsFree
+                    </th>
+                    <th data-priority="5">
+                        Name
+                    </th>
+
+                    <th data-priority="6">
+                        TemplateCost
+                    </th>
+
+                    <th data-priority="7">
+                        Category
+                    </th>
+                    <th data-priority="8">
+                        TemplateType
+                    </th>
+                    <th data-priority="9">
+                        TemplateThumbnail
+                    </th>
+                    <th data-priority="3">
+                        SlideTextInput
+                    </th>
+                    <th data-priority="2" style="min-width:100px;">Action</th>
+                    <th>
+                        Description
+                    </th>
+                    <th>
+                        AvailableCostings
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="itemId">
+                            @item.Id
+                        </td>
+                        <td>
+                            @if (item.IsFree)
+                            {
+                                <span class="badge bg-success">YES</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">NO</span>
+                            }
+
+                        </td>
+                        <td>
+                            @item.TemplateName
+                        </td>
+
+                        <td>
+                            @item.NormalCost
+                        </td>
+
+                        <td>
+                            @item.CategoryName
+                        </td>
+                        <td>
+                            @if (item.IsAlbumTemplate)
+                            {
+                                <a role="button" id="buttonVideo" class="videoModel" data-video="@item.VideoFilePath" data-toggle="modal" data-target="#videoModal">
+                                    <span class="bg-info p-1"><i class="fa fa-image" aria-hidden="true"></i> ALBUM</span>
+                                </a>
+                            }
+                            else
+                            {
+                                <a role="button" id="buttonVideo" class="videoModel" data-video="@item.VideoFilePath" data-toggle="modal" data-target="#videoModal"><span class="bg-success p-1"><i class="fa fa-file-video" aria-hidden="true"></i> VIDEO</span></a>
+                            }
+                        </td>
+                        <td class="w-25">
+                            @if (!string.IsNullOrEmpty(item.VideoThumbnail))
+                            {
+                                <a href="@item.VideoThumbnail" data-toggle="lightbox" data-title="Template Thumbnail">
+                                    <img src="@item.VideoThumbnail" class="w-50 img-fluid mb-2" alt="Template Thumbnail" />
+                                </a>
+                            }
+                        </td>
+                        <td>
+
+                            @{
+                                var childCategories = item.SlideTexts.Select(x => $"<a href='#' data-id='{x.Id}'>{x.Text}</a>").ToList();
+                            }
+                            @Html.Raw(string.Join(",", childCategories.ToArray()))
+                            <button role='button' class='btn btn-link btnAddEditSlideTexts'><i class='fa fa-plus-circle' aria-hidden='true'></i> Add</button>
+
+                            <div class="modal fade slideTextModal">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">Add/Edit SlideTexts</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div role="form">
+
+
+                                                @{Html.RenderPartial("Partials/SlideTextControl/_SlideTextControl", item.SlideTexts);}
+
+
+                                                @*<div class='form-group'>
+                                                        <label for='SlideTextInput'>SlideTexts</label>
+                                                        <input type="text" data-role="tagsinput" class="form-control" placeholder="Text on slide 1, Text on slide 2.... Use 'Enter' Key to add multiple values" name="SlideTextInput" id="SlideTextInput">
+                                                    </div>*@
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer justify-content-between">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btnSaveChild btn-primary" data-parentid="@item.Id">Save changes</button>
+                                        </div>
+                                    </div>
+                                    <!-- /.modal-content -->
+                                </div>
+                                <!-- /.modal-dialog -->
+                            </div>
+                            <!-- /.modal -->
+                        </td>
+                        <td>
+                            <a class="btn btn-info btn-sm" href="@Url.Action("Edit", new { id = item.Id })">
+                                <i class="fas fa-pencil-alt">
+                                </i>
+
+                            </a>
+
+                            <button class="btn btn-danger btn-sm btnDelete">
+                                <i class="fas fa-trash">
+                                </i>
+                            </button>
+                        </td>
+                        <td>
+                            @item.TemplateDescription
+                        </td>
+                        <td>
+                            @(item.Costings.Count > 0 ? string.Join(",", item.Costings.Select(x => x.Name).ToArray()) : "N/A")
+                        </td>
+                    </tr>
+
+
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@*Video Model PopUp*@
+<div class="modal fade" id="videoModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Video</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <video controls id="popupVideo" class="w-100">
+                </video>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                @*<button type="button" id="btnSave" class="btn btn-primary">Save changes</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+
+    @{Html.RenderPartial("Partials/SlideTextControl/_SlideTextScripts");}
+    <script>
+        $(document).ready(function () {
+
+            var mediaTempList = $('.mtable').DataTable({
+                responsive: true,
+                stateSave: true,
+                stateDuration: 3600,
+                stateLoadParams: function (settings, data) {
+                    if (data.search) delete data.search;
+                    delete data.columns[4].search;
+                }
+            });
+            
+           
+
+            $('#msds-select').change(function () {
+                var categoryName = $('#msds-select :selected').text();
+                if (categoryName == "--Select Category--") {
+                    mediaTempList.columns(4).search('').draw()
+                }
+                else {
+                    mediaTempList.columns(4).search(categoryName).draw()
+                }
+
+            });
+
+
+
+
+            $('.mtable').on('click', '.btnAddEditSlideTexts', function () {
+                $(this).parent().find('.slideTextModal').modal('show');
+            });
+
+
+            $('.mtable').on('click','.btnSaveChild', function () {
+
+                var slideTexts = $(this).parents('.modal-content').find('.sortable li .iTxt').toArray().map((v) => v.innerHTML);
+                var parentMediaId = $(this).data('parentid');
+                showPreloader('.slideTextModal .modal-content');
+
+                $.ajax({
+                    url: '/MediaTemplate/UpdateSlideTexts',
+                    type: "POST",
+                    data: JSON.stringify({ mediaTemplateId: parentMediaId, slideTexts: slideTexts.join("$=$") }),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (d) {
+                        swal.fire("Success!", `Updated the slide text successfully!`, "success").then((result) => {
+                            location.reload();
+                        });
+                    },
+                    error: function (e) {
+                        swal.fire("Error!", "An error occured while updating the child records!", "error");
+                    },
+                    complete: function () {
+                        $('.slideTextModal').modal("hide");
+                        hidePreLoader('.slideTextModal .modal-content')
+                    }
+                });
+
+            });
+
+            $('.mtable').on('click', '.btnDelete', function () {
+                thisBtn = $(this);
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Once deleted, you will not be able to recover this media template!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.value) {
+                        var idToDelete = thisBtn.parents('tr').find('.itemId').text().trim();
+                        $.ajax({
+                            url: "/MediaTemplate/Delete",
+                            type: "POST",
+                            data: { id: idToDelete }, success: function () {
+                                Swal.fire(
+                                    'Deleted!',
+                                    'The media template has been deleted successfully.',
+                                    'success'
+                                ).then(() => location.reload());
+
+                            },
+                            error: function (e) {
+                                swal.fire("Error!", "An error occured while deleting the media template!", "error");
+                            }
+                        });
+                    }
+                });
+            });
+
+            $(".mtable").on('click', '.videoModel', function () {
+                var videoSRC = $(this).attr("data-video");
+                $("#popupVideo").attr("src", videoSRC);
+            });
+            $('#videoModal').on('hidden.bs.modal', function (e) {
+                $("#popupVideo")[0].load();
+            })
+
+            $('.slideTextModal').on('hidden.bs.modal', function (e) {
+                $(this).find('.txtSlide').removeAttr('data-mid').val('').trigger('input');
+            })
+        });
+    </script>
+}

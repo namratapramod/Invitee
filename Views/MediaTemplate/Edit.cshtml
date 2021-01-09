@@ -1,0 +1,84 @@
+﻿@model Invitee.ViewModels.MediaTemplateViewModel
+@using Invitee.Utils.Helpers
+@{
+    ViewBag.Title = "Edit";
+}
+<div class="card card-default">
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "Edit Template" } })
+    @using (Html.BeginForm("Edit", "MediaTemplate", FormMethod.Post, new { @role = "form", enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+    <div class="card-body">
+        @Html.HiddenFor(m => m.Id)
+        @Html.HiddenFor(m => m.VideoFilePath)
+        @Html.HiddenFor(m => m.VideoThumbnail)
+        @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+        <div class='form-group'>
+            <label for='CategoryId'>Category</label>
+            @Html.DropDownListFor(x => x.CategoryId, new SelectList(Model.CategoryList, "Id", "Name"), "--Select Category--", htmlAttributes: new { @class = "form-control" })
+        </div>
+        <div class="form-group">
+            <label for='IsAlbumTemplate'>Is Album Template?</label>
+            <input class="form-control" type="checkbox" name="IsAlbumTemplate" value="@Model.IsAlbumTemplate.ToString().ToLower()" id="IsAlbumTemplate" data-on-text="Yes" data-off-text="No" @(Model.IsAlbumTemplate ? "checked=\"checked\"" : "")>
+        </div>
+        <div class="form-group" id="IsFreeDiv">
+            <label for='IsFree'>Is Free?</label>
+            <input class="form-control" type="checkbox" name="IsFree" value="@Model.IsFree.ToString().ToLower()" id="IsFree" data-on-text="Yes" data-off-text="No" @(Model.IsFree ? "checked= checked" : "")>
+        </div>
+        @Html.BootStrapTextBoxFor(x => x.NormalCost, "Template Cost", "Template Cost", "number")
+        @Html.BootStrapTextBoxFor(x => x.OfferPercentage, "Offer (percentage)", "Offer in percentage", "number")
+        <label for='CostingIds'>Select Costing(s)</label>
+        @Html.DropDownListFor(x => x.CostingIds, new SelectList(Model.CostingList, "Id", "Name"), htmlAttributes: new { @class = "select2 form-control", @multiple = "multiple", data_placeholder = "Select Costings", data_dropdown_css_class = "select2-purple" })
+        @Html.BootStrapTextBoxFor(x => x.ImageCount, "Image Count", placeHolder: "Enter Image Count")
+        @Html.BootStrapTextBoxFor(x => x.TemplateName, "Template Name", "Name of the template")
+        @Html.BootStrapTextAreaFor(x => x.TemplateDescription, "Template Description", "Template Description")
+        <div class="form-group">
+            <label for="VideoFile">Video Template File <small class="text-info">(Allowed files mp4, avi, mov, 3gp, mpeg)</small></label>
+            <input type="file" class="form-control" id="VideoFile" name="VideoFile">
+        </div>
+        <div class="form-group">
+            <label for="VideoFile">Video Template File <small class="text-info">(Allowed files .jpg, .png, .gif, jpeg)</small></label>
+            <input type="file" class="form-control" id="VideoThumbnailFile" name="VideoThumbnailFile">
+        </div>
+        @*@AdminHtmlHelper.BuildInput("file", "VideoFile", "Video Template File")
+        @AdminHtmlHelper.BuildInput("file", "VideoThumbnailFile", "Video Thumbnail File")*@
+
+    </div>
+
+        <div class="card-footer">
+            <input type="submit" class="btn btn-primary" value="Submit" />
+        </div>
+    }
+</div>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $('#IsFree').bootstrapSwitch({ onSwitchChange: function (e, s) { $(this).val(s); } });
+            $('#IsAlbumTemplate').bootstrapSwitch({ onSwitchChange: function (e, s) { $(this).val(s); if (s == true) { $("#IsFreeDiv").hide(250); } else { $("#IsFreeDiv").show(250); } } });
+
+            $('.bootstrap-tagsinput').on('dblclick', '.badge-info', function () {
+                $('.bootstrap-tagsinput input').val($(this).text()).change();
+                $('.bootstrap-tagsinput input').val($('.bootstrap-tagsinput input').val().trim() + ' ').trigger('change');
+                $(this).remove();
+            });
+
+              var costingArray = @Html.Raw(Json.Encode(Model.CostingIds));
+            $('#CostingIds').val(costingArray).trigger('change');
+
+            if ($('#IsAlbumTemplate').val() == "true")
+                $("#IsFreeDiv").hide(250);
+        });
+    </script>
+    @if (ViewBag.Success != null)
+    {
+        <script>
+            swal.fire("Success!", `The template was updated successfully!`, "success").then((result) =>
+        {
+            showPreloader("body");
+            location.href = "@Url.Action("Index")";
+        });
+        </script>
+
+    }
+
+}
