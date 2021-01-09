@@ -5,9 +5,9 @@ using System.Web;
 
 namespace Invitee.Entity.Enums
 {
-    public enum Gender
+    public enum UserRole
     {
-        Male = 1,
-        Female = 2
+        Admin,
+        Normal
     }
 }

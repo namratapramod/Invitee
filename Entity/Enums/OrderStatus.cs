@@ -5,9 +5,12 @@ using System.Web;
 
 namespace Invitee.Entity.Enums
 {
-    public enum Gender
+    public enum OrderStatus
     {
-        Male = 1,
-        Female = 2
+        Initiated = 0,
+        New=1,
+        InProcess=2,
+        Completed=3,
+        Rejected=4
     }
 }
