@@ -1,0 +1,34 @@
+﻿@model Invitee.ViewModels.CostingViewModel
+@using Invitee.Utils.Helpers
+@{
+    ViewBag.Title = "Create";
+}
+<div class="card card-default">
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "Add New Costing" } })
+    @using (Html.BeginForm("Create", "Costing", FormMethod.Post, new { @role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="card-body">
+            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+            @Html.BootStrapTextBoxFor(m => m.Name, "Costing Name", "One Day Express..")
+            @Html.BootStrapTextBoxFor(m => m.Description, "Description", "Will be delivered in xyz time.")
+            @Html.BootStrapTextBoxFor(m => m.CostToAdd, "Cost to be added", "Cost that will be added to the normal cost", "number")
+            @Html.BootStrapTextBoxFor(m => m.OfferPercentage, "Offer (percentage)", "Offer in percentage", "number")
+            @Html.BootStrapTextBoxFor(m => m.DeliveryHours, "Delivery (Hours)", "e.g 24/48/72", "number")
+        </div>
+
+        <div class="card-footer">
+            <input type="submit" class="btn btn-primary" value="Submit" />
+        </div>
+    }
+</div>
+@section scripts{
+    @if (ViewBag.Success != null)
+    {
+        <script>
+                    swal.fire("Success!", `The costing was created successfully!`, "success").then((result) => {
+                        location.href = "@Url.Action("Index")";
+                    });
+        </script>
+    }
+}
