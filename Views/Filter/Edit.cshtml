@@ -1,0 +1,32 @@
+﻿@model Invitee.ViewModels.FilterViewModel
+
+@using Invitee.Utils.Helpers
+@{
+    ViewBag.Title = "Edit";
+}
+<div class="card card-default">
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "Edit Filter" } })
+    @using (Html.BeginForm("Edit", "Filter", FormMethod.Post, new { @role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="card-body">
+            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+            @Html.BootStrapTextBoxFor(m => m.Name, "Filter Name", "Filter Name")
+            @Html.BootStrapTextBoxFor(m => m.Description, "Description", "Description")
+        </div>
+
+        <div class="card-footer">
+            <input type="submit" class="btn btn-primary" value="Submit" />
+        </div>
+    }
+</div>
+@section scripts{
+    @if (ViewBag.Success != null)
+    {
+        <script>
+                    swal.fire("Success!", `The filter was updated successfully!`, "success").then((result) => {
+                        location.href = "@Url.Action("Index")";
+                    });
+        </script>
+    }
+}

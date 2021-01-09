@@ -1,0 +1,32 @@
+﻿@model Invitee.ViewModels.FilterViewModel
+
+@using Invitee.Utils.Helpers
+@{
+    ViewBag.Title = "Create";
+}
+<div class="card card-default">
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "Add New Filter" } })
+    @using (Html.BeginForm("Create", "Filter", FormMethod.Post, new { @role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+    <div class="card-body">
+        @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+        @Html.BootStrapTextBoxFor(m => m.Name, "Filter Name", "Filter Name")
+        @Html.BootStrapTextBoxFor(m => m.Description, "Description", "Description")
+    </div>
+
+        <div class="card-footer">
+            <input type="submit" class="btn btn-primary" value="Submit" />
+        </div>
+    }
+</div>
+@section scripts{
+    @if (ViewBag.Success != null)
+    {
+        <script>
+                    swal.fire("Success!", `The filter was created successfully!`, "success").then((result) => {
+                        location.href = "@Url.Action("Index")";
+                    });
+        </script>
+    }
+}

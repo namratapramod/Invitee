@@ -1,0 +1,58 @@
+﻿@model IEnumerable<Invitee.ViewModels.FilterViewModel>
+
+@{
+    ViewBag.Title = "Filter";
+}
+
+
+<div class="card card-default">
+
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "Filter List" }, { "addbutton", Url.Action("Create") } })
+    <div class="card-body">
+
+        @Invitee.Utils.Helpers.AdminHtmlHelper.TableHelper.BuildBasicTable(Model.ToList(), "class='table table-bordered table-hover mtable'", new string[] { "CreatedDate", "UpdatedDate" }, editButton: Url.Action("Edit", new { id = "rid" }), deleteButton: true)
+
+
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            var tb = $(".mtable").DataTable({
+                "responsive": true,
+            });
+            $('.mtable').on('click', '.btnDelete', function () {
+                thisBtn = $(this);
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Once deleted, you will not be able to recover this filter!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.value) {
+                        var idToDelete = thisBtn.parents('tr').find('.itemId').text().trim();
+                        $.ajax({
+                            url: "/Filter/Delete",
+                            type: "POST",
+                            data: { id: idToDelete }, success: function () {
+                                Swal.fire(
+                                    'Deleted!',
+                                    'Filter has been deleted successfully.',
+                                    'success'
+                                ).then(() => thisBtn.parents('tr').hide(800));
+                            },
+                            error: function (e) {
+                                swal.fire("Error!", "An error occured while deleting the filter!", "error");
+                            }
+                        });
+                    }
+                });
+            });
+        })
+    </script>
+}
