@@ -1,0 +1,125 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+@model IEnumerable<Invitee.ViewModels.OfferBannerViewModel>
+<div class="card card-default">
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "Offer Banner List" }, { "addbutton", Url.Action("Create") } })
+    <div class="card-body">
+        <table class="table table-bordered table-hover mtable">
+            <thead>
+                <tr>
+                    <th>
+                        Id
+                    </th>
+                    <th>
+                        Offer Image
+                    </th>
+                    <th>
+                        Offer Text
+                    </th>
+                    <th>Offer Start Date</th>
+                    <th>Offer End Date</th>
+                    <th style="min-width:100px;">Action</th>
+                </tr>
+            </thead>
+            @if (!Model.Any())
+            {
+                <tbody>
+                    <tr>
+                        <td>No Data Found !</td>
+                    </tr>
+                </tbody>
+            }
+            else { 
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                    <tr>
+                        <td class="itemId">
+                            @item.Id
+                        </td>
+                        <td class="w-25">
+                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                            {
+                                <a href="@item.ImageUrl" data-toggle="lightbox" data-title="Offer Image">
+                                    <img src="@item.ImageUrl" class="w-50 img-fluid mb-2" alt="sample" />
+                                </a>
+                            }
+                            else
+                            {
+                                <span><b>-</b></span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.OfferText))
+                            {
+                                @item.OfferText
+                            }
+                            else
+                            {
+                               <span><b>-</b></span>
+                            }
+                        </td>
+                        <td>@item.OfferStartDate.ToString("dd-MM-yyyy")</td>
+                        <td>@item.OfferEndDate.ToString("dd-MM-yyyy")</td>
+                        <td style="width: 20%">
+                            <a class="btn btn-info btn-sm" href="@Url.Action("Edit",new { id = item.Id })">
+                                <i class="fas fa-pencil-alt">
+                                </i>
+                                Edit
+                            </a>
+
+                            <button class="btn btn-danger btn-sm btnDelete">
+                                <i class="fas fa-trash">
+                                </i>
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    }
+
+                </tbody>
+            }
+        </table>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            var tb = $(".mtable").DataTable({
+                "responsive": true,
+            });
+            $('.mtable').on('click', '.btnDelete', function () {
+                thisBtn = $(this);
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Once deleted, you will not be able to recover this offer banner!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.value) {
+                        var idToDelete = thisBtn.parents('tr').find('.itemId').text().trim();
+                        $.ajax({
+                            url: "/OfferBanner/Delete",
+                            method: "POST", data: { id: idToDelete }, success: function () {
+                                Swal.fire(
+                                    'Deleted!',
+                                    'The offer banner has been deleted successfully.',
+                                    'success'
+                                ).then(() => thisBtn.parents('tr').hide(800));
+                            },
+                            error: function (e) {
+                                swal.fire("Error!", "An error occured while deleting the offer banner!", "error");
+                            }
+                        });
+                    }
+                });
+            });
+        })
+    </script>
+}

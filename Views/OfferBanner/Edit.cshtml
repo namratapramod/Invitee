@@ -1,0 +1,101 @@
+﻿@{
+    ViewBag.Title = "Edit";
+}
+@model Invitee.ViewModels.OfferBannerViewModel
+@using Invitee.Utils.Helpers
+<div class="card card-default">
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "Edit Offer Banner" } })
+    @using (Html.BeginForm("Edit", "OfferBanner", FormMethod.Post, new { @role = "form", enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+    <div class="card-body" id="valError">
+        @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.ImageUrl)
+        @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+        <div id="validationDate">
+            @Html.ValidationSummary(false, "Please ensure that the Offer End Date is greater than or equal to the Offer Start Date.", new { @class = "text-danger" })
+        </div>
+        <input type="hidden" name="CreatedDate" value="@Model.CreatedDate" />
+
+        <div class="form-group">
+            <label for='IsAlbumTemplate'>Is Image?</label>
+            <input class="form-control" type="checkbox" name="IsImage" value="@Model.IsImage.ToString().ToLower()" id="IsImage" data-on-text="Yes" data-off-text="No" @(Model.IsImage ? "checked=\"checked\"" : "")>
+        </div>
+        <div class="form-group" id="offerImg">
+            <label for="File">Offer Banner Image <small class="text-info">(Allowed files .jpg, .png, .gif, jpeg)</small></label>
+            <input type="file" class="form-control" id="File" name="File">
+            @*@AdminHtmlHelper.BuildInput("file", "File", "Offer Banner Image")*@
+        </div>
+        <div class="form-group" id="offerText">
+            @Html.BootStrapTextBoxFor(model => model.OfferText, "Offer Text", " Offer Text", type: "text")
+        </div>
+        @Html.BootStrapTextBoxFor(model => model.OfferStartDate, "Offer Start Date", type: "date")
+
+        @Html.BootStrapTextBoxFor(model => model.OfferEndDate, "Offer End Date", type: "date")
+
+    </div>
+        <div class="card-footer">
+            <input type="submit" class="btn btn-primary" id="submitId" value="Submit" />
+        </div>
+        }
+    </div>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $('#IsImage').bootstrapSwitch({
+                onSwitchChange: function (e, s) {
+                    $(this).val(s);
+                    if (s == true) {
+                        $("#offerImg").show();
+                        $("#File").attr("required", "true");
+                        $("#offerText").hide();
+                    }
+                    else {
+                        $("#offerText").show();
+                        $("#OfferText").attr("required", "true");
+                        $("#offerImg").hide();
+                    }
+                }
+            });
+            if ($('#IsImage').val() == "true")
+                $("#offerText").hide(250);
+            if ($('#IsImage').val() == "false")
+                $("#offerImg").hide(250);
+        });
+        var offerStart = "@Model.OfferStartDate.ToString("yyyy-MM-dd")";
+        var offerEnd = "@Model.OfferEndDate.ToString("yyyy-MM-dd")";
+        $('#OfferStartDate').val(offerStart);
+        $('#OfferEndDate').val(offerEnd);
+        $('#validationDate').hide();
+        $("#submitId").click(function () {
+            if ($('#IsImage').val() == "false")
+                $("#OfferText").attr("required", "true");
+            var startDate = $("#OfferStartDate").val();
+            var endtDate = $("#OfferEndDate").val();
+            if (startDate != '' && startDate != '' && startDate > endtDate)
+            {
+                $('#validationDate').show();
+                return false;
+            }
+        });
+        
+    </script>
+    @if (ViewBag.Success != null)
+    {
+        <script>
+            
+            $("#OfferStartDate").val(offerStart);
+            $("#OfferEndDate").val(offerEnd);
+            var startDate = $("#OfferStartDate").val();
+            var endtDate = $("#OfferEndDate").val();
+            if (startDate != '' && startDate != '' && startDate > endtDate) {
+                alert("Please ensure that the End Date is greater than or equal to the Start Date.");
+            }
+                    swal.fire("Success!", `The offer banner was saved successfully!`, "success").then((result) => {
+                        location.href = "@Url.Action("Index")";
+                    });
+        </script>
+    }
+
+}
+
