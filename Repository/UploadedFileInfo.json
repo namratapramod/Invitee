@@ -1,0 +1,57 @@
+[
+  {
+    "tableName": "MediaTemplate",
+    "columnName": "VideoFilePath",
+    "path": "~/Videos/TemplateVideos"
+  },
+  {
+    "tableName": "MediaTemplate",
+    "columnName": "VideoThumbnail",
+    "path": "~/Images/VideoTemplateThumbnails"
+  },
+  {
+    "tableName": "Delivery",
+    "columnName": "DeliveryFile",
+    "path": "~/Videos/Delivery"
+  },
+  {
+    "tableName": "Delivery",
+    "columnName": "ComplementaryFile",
+    "path": "~/Videos/Delivery"
+  },
+  {
+    "tableName": "Delivery",
+    "columnName": "DeliveryThumbnailFile",
+    "path": "~/Videos/DeliveryThumnailFileImages"
+  },
+  {
+    "tableName": "Delivery",
+    "columnName": "ComplementaryThumbnailFile",
+    "path": "~/Videos/DeliveryThumnailFileImages"
+  },
+  {
+    "tableName": "Order",
+    "columnName": "AudioFilePath",
+    "path": "~/Images/OrderAudios"
+  },
+  {
+    "tableName": "User",
+    "columnName": "ProfilePic",
+    "path": "~/Images/ProfilePictures"
+  },
+  {
+    "tableName": "OrderImage",
+    "columnName": "ImagePath",
+    "path": "~/Images/OrderImages"
+  },
+  {
+    "tableName": "OfferBanner",
+    "columnName": "ImageUrl",
+    "path": "~/Images/OfferBannerImages"
+  },
+  {
+    "tableName": "Category",
+    "columnName": "ImageUrl",
+    "path": "~/Images/CategoryImages"
+  }
+]
