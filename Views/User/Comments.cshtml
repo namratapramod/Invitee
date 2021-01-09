@@ -1,0 +1,82 @@
+﻿
+@{
+    ViewBag.Title = "Comments";
+}
+@model IEnumerable<Invitee.Entity.Delivery>
+
+<style>
+    .fa-star {
+        color: #0056b3;
+    }
+</style>
+<div class="card card-default">
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "Users Rate And Comments List" } })
+    <div class="card-body">
+
+        <table class="table table-bordered table-hover mtable">
+            <thead>
+                <tr>
+                    <th>
+                        OrderId
+                    </th>
+                    <th>
+                        UserName
+                    </th>
+                    <th>
+                        Thumbnail
+                    </th>
+                    <th width="100">
+                        Rating&nbsp;
+                    </th>
+                    <th>
+                        Comment
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <td>
+                        @item.OrderId
+                    </td>
+                    <td>
+                        @item.Order.User.UserName
+                    </td>
+                    <td class="w-25">
+                        @if (!string.IsNullOrEmpty(item.DeliveryThumbnailFile))
+                        {
+                            <a href="/@item.DeliveryThumbnailFile" data-toggle="lightbox" data-title="Delivery Thumbnail">
+                                <img src="/@item.DeliveryThumbnailFile" class="w-50 img-fluid mb-2" alt="Delivery Thumbnail" />
+                            </a>
+                        }
+                    </td>
+                    <td>
+                        
+                        <span class="@(item.Rating>0?"fas":"far") fa-star"></span>
+                        <span class="@(item.Rating>1?"fas":"far") fa-star"></span>
+                        <span class="@(item.Rating>2?"fas":"far") fa-star"></span>
+                        <span class="@(item.Rating>3?"fas":"far") fa-star"></span>
+                        <span class="@(item.Rating>4?"fas":"far") fa-star"></span>
+                    </td>
+                    <td>
+                        @item.Comment
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            var tb = $(".mtable").DataTable({
+              
+                "order": [[4, "desc"]]
+            });
+
+            
+        })
+    </script>
+}
