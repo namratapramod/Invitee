@@ -1,0 +1,56 @@
+﻿@model IEnumerable<Invitee.Entity.SlideText>
+
+
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text txtCounter">0</span>
+    </div>
+    <input type="text" class="form-control txtSlide" placeholder="Enter the slide text">
+    <div class="input-group-append">
+        <button class="btnAdd btn btn-primary" type="submit">Add</button>
+        <button data-toggle="tooltip" data-html="true" title="<b>Double</b> click to reset the reference." class="btnClear btn btn-outline-secondary" type="button">Clear</button>
+
+    </div>
+</div>
+<ul  aria-dropeffect="move" class="sortable list-group shadow p-4 mb-5 bg-white rounded">
+
+
+    @foreach (var item in Model)
+    {
+    <li data-mid="@item.Id" class="list-group-item shadow-sm border-1">
+        <i class="fa drag fa-align-justify text-primary" style="font-size:20px"></i>
+        <span class="iTxt">@Html.Raw(@item.Text)</span>
+        <a role="link" class="edit">
+            <i class="fa fa-edit" aria-hidden="true"></i>
+        </a>
+        <a role="link" class="delete">
+            <i class="fa fa-trash" aria-hidden="true"></i>
+        </a>
+    </li>
+    }
+
+
+    @*<li data-id="1" class="list-group-item shadow-sm border-1">
+            <i class="fa drag fa-align-justify text-primary" style="font-size:20px"></i>
+            Some text 1
+            <a role="link" class="edit">
+                <i class="fa fa-pencil-square-o " aria-hidden="true"></i>
+            </a>
+            <a role="link" class="delete">
+                <i class="fa fa-trash-o" aria-hidden="true"></i>
+
+            </a>
+        </li>
+
+        <li data-id="1" class="list-group-item shadow-sm border-1">
+            <i class="fa drag fa-align-justify text-primary" style="font-size:20px"></i>
+            Some text 2
+            <a role="link" class="edit">
+                <i class="fa fa-pencil-square-o " aria-hidden="true"></i>
+            </a>
+            <a role="link" class="delete">
+                <i class="fa fa-trash-o" aria-hidden="true"></i>
+
+            </a>
+        </li>*@
+</ul>

@@ -1,0 +1,81 @@
+﻿<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.10.2/Sortable.min.js"></script>
+<script>
+    /********************
+    * SlideText Sscripts
+    * ********************/
+    function addSlideTextToList(txt, ele) {
+        if (!txt || txt == "") return;
+
+        var mid = $(ele).find('li').length;
+        var listItem = `<li style="display:none" data-mid='${mid}' class="list-group-item shadow-sm border-1">
+    <i class="fa drag fa-align-justify text-primary" style="font-size:20px"></i>
+    <span class="iTxt">[TEXT]</span>
+    <a role="link" class="edit">
+        <i class="fa fa-edit" aria-hidden="true"></i>
+    </a>
+    <a role="link" class="delete">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+    </a>
+</li>`;
+        var inputEle = $(ele).prev().find('.txtSlide');
+        if ($(inputEle).attr('data-mid') && $(inputEle).attr('data-mid') != "") {
+            $(ele).find(`[data-mid=${$(inputEle).attr('data-mid')}]`).find('.iTxt').text(txt).parent().effect("highlight", { color: "#669966" }, 1500);
+            $(inputEle).removeAttr('data-mid');
+        }
+        else {
+            $(ele)
+                .append(listItem.replace("[TEXT]", txt))
+                .find("li")
+                .last()
+                .show("slow");
+        }
+
+    }
+
+    $(function () {
+        var sortables = document.getElementsByClassName('sortable');
+        for (s of sortables) {
+            new Sortable(s, {
+                animation: 250,
+                ghostClass: "blue-background-class"
+            });
+        }
+
+
+        $(".sortable").on("click", ".edit", function () {
+            $(this).parents('div[role="form"]').find(".txtSlide").val($(this).parent().text().trim());
+            $(this).parents('div[role="form"]').find(".txtSlide").attr('data-mid', $(this).parent().data('mid'));
+            $(this).parents('div[role="form"]').find(".txtSlide").trigger("input");
+        });
+
+        $(".sortable").on("click", ".delete", function () {
+            $(this)
+                .parent()
+                .hide("slow", function () {
+                    $(this).remove();
+                });
+        });
+
+        $(".btnClear").on("click", function () {
+            $(this).parents('div[role="form"]').find(".txtSlide").val("");
+            $(this).parents('div[role="form"]').find(".txtSlide").trigger("input");
+        });
+        $(".btnClear").on("dblclick", function () {
+            $(this).parents('div[role="form"]').find(".txtSlide").val("");
+            $(this).parents('div[role="form"]').find(".txtSlide").removeAttr('data-mid');
+            $(this).parents('div[role="form"]').find(".txtSlide").trigger("input");
+        });
+
+        $(".btnAdd").on("click", function () {
+            addSlideTextToList($(this).parents('div[role="form"]').find(".txtSlide").val(), $(this).parents('div[role="form"]').find(".sortable"));
+            $(this).parents('div[role="form"]').find(".btnClear").click();
+        });
+
+        $(".txtSlide").on("input", function () {
+            $(this).parents('div[role="form"]').find(".txtCounter").text($(this).val().length);
+        });
+    });
+    /****************************
+    * End of SlideText Script
+    * ***************************/
+</script>

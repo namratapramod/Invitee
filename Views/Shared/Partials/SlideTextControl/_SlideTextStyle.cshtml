@@ -1,0 +1,50 @@
+﻿
+<style>
+    .list-group {
+        padding: 2px;
+        background: whitesmoke;
+    }
+
+    .list-group-item {
+        margin: 4px;
+        cursor: pointer;
+        display: flex;
+        padding-left: 8px;
+        animation: highlight 1000ms ease-out;
+    }
+
+        .list-group-item:hover {
+            margin: 4px !important;
+            color: inherit;
+            background: #007bff59;
+        }
+
+    .blue-background-class {
+        background: #3468a973;
+    }
+
+    .list-group .drag {
+        padding-right: 6px;
+        text-align: left;
+    }
+
+    .list-group .edit {
+        position: absolute;
+        right: 6px;
+        font-size: 22px;
+        color: gray;
+    }
+
+    .list-group .delete {
+        position: absolute;
+        right: 40px;
+        font-size: 22px;
+        color: gray;
+    }
+    /*highlight 1000ms ease-out*/
+    @@keyframes highlight {
+        from {
+            background-color: #3468a973;
+        }
+    }
+</style>
