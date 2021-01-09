@@ -1,0 +1,33 @@
+﻿
+@model IEnumerable<Invitee.Entity.ReferralSettings>
+
+@{
+    ViewBag.Title = "Referral Settings";
+}
+
+
+<div class="card card-default">
+
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "ReferralSetting List" }, { "addbutton", Url.Action("CreateReferralSetting") } })
+    <div class="card-body">
+
+        @Invitee.Utils.Helpers.AdminHtmlHelper.TableHelper.BuildBasicTable(Model.ToList(), "class='table table-bordered table-hover mtable'", new string[] { "UpdatedDate" })
+
+
+    </div>
+</div>
+
+
+@section scripts{
+    <script>
+
+    $(document).ready(function () {
+
+        $(".mtable").DataTable({
+            "searching": false,
+            "order": [[0, "desc"]]
+        });
+        $('.mtable tbody tr:eq(0)').addClass('bg-success');
+    });
+    </script>
+}

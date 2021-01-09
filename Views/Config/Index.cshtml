@@ -1,0 +1,23 @@
+﻿@model Invitee.Entity.Config
+@using Invitee.Utils.Helpers
+@{
+    ViewBag.Title = "Config";
+}
+    <div class="card card-default">
+        @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "Update Config" } })
+        @using (Html.BeginForm("Create", "Config", FormMethod.Post, new { @role = "form" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => Model.Id)
+        <div class="card-body">
+            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+            @Html.BootStrapTextBoxFor(model => model.FireBaseToken, "Firebase Token", "The firebase token to be used")
+            @Html.BootStrapTextBoxFor(model => model.PlaystoreVersionNumber, "Playstore Version Number")
+            @Html.BootStrapTextBoxFor(model => model.FreeVideoOnRegister, "Free Videos On Registration", "", "number")
+        </div>
+            <div class="card-footer">
+                <input type="submit" class="btn btn-primary" value="Submit" />
+            </div>
+        }
+    </div>
+

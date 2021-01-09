@@ -1,1 +1,20 @@
+﻿@model Invitee.Entity.ReferralSettings
+@using Invitee.Utils.Helpers
+@{
+    ViewBag.Title = "Referral Settings";
+}
+<div class="card card-default">
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "Add Referral Setting" } })
+    @using (Html.BeginForm("CreateReferralSetting", "config", FormMethod.Post, new { @role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="card-body">
+            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+            @Html.BootStrapTextBoxFor(m => m.ReferralCountForFreeVideo, "Referral Count For Free Video", "Free video Count")
+        </div>
 
+        <div class="card-footer">
+            <input type="submit" class="btn btn-primary" value="Submit" />
+        </div>
+    }
+</div>
