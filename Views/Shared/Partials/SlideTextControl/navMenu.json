@@ -1,0 +1,134 @@
+{
+  "items": [
+    {
+      "name": "Category",
+      "isParent": true,
+      "icon": "nav-icon fas fa-copy",
+      "childItems": [
+        {
+          "name": "List Category",
+          "isParent": false,
+          "url": "/Category"
+        },
+        {
+          "name": "Create",
+          "isParent": false,
+          "url": "/Category/Create"
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "isParent": true,
+      "icon": "fa fa-users",
+      "childItems": [
+        {
+          "name": "List Users",
+          "url": "/User"
+        },
+        {
+          "name": "Users Rate And Comments",
+          "url": "/User/Comments"
+        }
+      ]
+    },
+    {
+      "name": "Costing",
+      "isParent": true,
+      "icon": "fa fa-rupee-sign",
+      "childItems": [
+        {
+          "name": "List Costings",
+          "url": "/Costing"
+        },
+        {
+          "name": "Create Costing",
+          "url": "/Costing/Create"
+        },
+        {
+          "name": "List ImageCost",
+          "url": "/ImageCost"
+        },
+        {
+          "name": "Create ImageCost",
+          "url": "/ImageCost/Create"
+        }
+      ]
+    },
+    {
+      "name": "Templates",
+      "isParent": true,
+      "icon": "fa fa-video",
+      "childItems": [
+        {
+          "name": "List Templates",
+          "url": "/MediaTemplate"
+        },
+        {
+          "name": "Create",
+          "url": "/MediaTemplate/Create"
+        }
+      ]
+    },
+    {
+      "name": "Offer Banner",
+      "isParent": true,
+      "icon": "fa fa-gift",
+      "childItems": [
+        {
+          "name": "List Banner",
+          "url": "/OfferBanner"
+        },
+        {
+          "name": "Create",
+          "url": "/OfferBanner/Create"
+        }
+      ]
+    },
+    {
+      "name": "Filter",
+      "isParent": true,
+      "icon": "fa fa-filter",
+      "childItems": [
+        {
+          "name": "List Filter",
+          "url": "/Filter"
+        },
+        {
+          "name": "Create",
+          "url": "/Filter/Create"
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "isParent": true,
+      "icon": "fa fa-shopping-cart",
+      "childItems": [
+        {
+          "name": "List Order",
+          "url": "/Order"
+        }
+      ]
+    },
+    {
+      "name": "Config",
+      "isParent": true,
+      "icon": "fa fa-cog",
+      "childItems": [
+        {
+          "name": "Update Config",
+          "url": "/Config"
+        },
+        {
+          "name": "Create Referral Setting",
+          "url": "/Config/CreateReferralSetting"
+        },
+        {
+          "name": "Referral Setting List",
+          "url": "/Config/ReferralSettingList"
+        }
+      ]
+    }
+  ]
+}
