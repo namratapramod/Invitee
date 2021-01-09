@@ -1,0 +1,466 @@
+﻿
+@{
+    ViewBag.Title = "Orders";
+}
+@model IEnumerable<Invitee.ViewModels.OrderViewModel>
+@using Invitee.Utils.Helpers
+<style>
+    .btn-space {margin: 1px;}
+    .highlighter{background-color: #f1060640;}
+</style>
+
+<div class="card card-default">
+
+    @Html.Partial("Partials/_CardHeader", new ViewDataDictionary { { "title", "Order List" } })
+    <div class="card-body">
+
+        <table class="table table-sm table-bordered table-hover mtable order_details_table">
+            <thead>
+                <tr>
+                    <th>
+                        OrderId
+                    </th>
+                    <th>Type&nbsp;</th>
+                    <th>SelectedCosting</th>
+
+                    <th>
+                        TemplateName
+                    </th>
+                    <th>
+                        Date
+                    </th>
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        OrderImages
+                    </th>
+                    <th>
+                        Action
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr data-id="@item.Id">
+                        <td class="itemId">
+                            @item.Id
+                        </td>
+                        <td>
+                            @if (item.IsFreeOrder)
+                            {
+                                <span class="bg-success p-1"><i class="fa fa-smile-beam" aria-hidden="true"></i> Free</span>
+                            }
+                            else
+                            {
+                                <span class="bg-primary p-1"><i class="fa fa-dollar-sign" aria-hidden="true"></i> Paid</span>
+                            }
+
+                        </td>
+                        <td>@(item.Costing==null?"NULL":item.Costing.Name)</td>
+
+                        <td>
+                            <button type="button" data-videourl="@item.MediaTemplate.VideoFilePath" data-toggle="tooltip" data-placement="bottom" title="Click to preview the video" class="btnPreview btn btn-link">@item.MediaTemplate.TemplateName</button>
+                        </td>
+                        <td>
+                            @item.CreatedDate.ToString("dd-MMM-yyyy hh:mm tt")
+                        </td>
+                        <td id="rejectColor">
+                            @item.OrderStatus
+                        </td>
+
+                        <td>
+                            @if (item.OrderImages.Count > 0)
+                            {
+                                <a href="#" data-toggle="tooltip" title="Click to show the images uploaded" onclick="openImageGallery(@item.Id)"> <span class="bg-primary p-1"><i class="fa fa-image" aria-hidden="true"></i> Images</span></a>
+                            }
+
+                            @foreach (var img in item.OrderImages)
+                            {
+                                <a style="display:none" href="@img.ImagePath" data-toggle="lightbox" data-title="OrderImage" data-gallery="@("gallery"+img.OrderId)">
+
+                                </a>
+                            }
+                        </td>
+                        <td>
+                            @if (item.OrderStatus == Invitee.Entity.Enums.OrderStatus.Completed)
+                            {
+                                <a role="button" target="_blank" href="/Order/DownloadFile/@item.Id" class="btn btn-info btn-sm"><i class="fa fa-file-download" aria-hidden="true" data-toggle="tooltip" title="Download File"></i></a>
+                            }
+                            else
+                            {
+                                if (item.OrderStatus == Invitee.Entity.Enums.OrderStatus.New)
+                                {
+                                    <button type="button" @(item.OrderStatus != Invitee.Entity.Enums.OrderStatus.New ? "disabled" : "") data-orderid="@item.Id" class="btn btn-info btnStartWork btn-sm btn-space"><i class="fa fa-play-circle" aria-hidden="true" data-toggle="tooltip" title="Start Work"></i></button>
+                                    <button type="button" onclick="" class="btn btn-info btnReject btn-sm btn-space" data-toggle="modal" data-target="#rejectModal" data-orderid="@item.Id"><i class="fa fa-times" aria-hidden="true" data-toggle="tooltip" title="Reject Order"></i></button>
+                                }
+                                if (item.OrderStatus == Invitee.Entity.Enums.OrderStatus.InProcess)
+                                {
+                                    <button type="button" @(item.OrderStatus != Invitee.Entity.Enums.OrderStatus.InProcess ? "disabled" : "") data-orderid="@item.Id" class="btn btn-info btnFinishWork btn-sm"><i class="fa fa-check-square" aria-hidden="true" data-toggle="tooltip" title="Finish Work"></i></button>
+                                }
+                                if (item.OrderStatus == Invitee.Entity.Enums.OrderStatus.InProcess || item.OrderStatus == Invitee.Entity.Enums.OrderStatus.New)
+                                {
+                                    <a role="button" target="_blank" href="@Url.Action("DownloadOrderContent",new { id = item.Id})" class="btn btn-info btn-sm"><i class="fa fa-download" aria-hidden="true" data-toggle="tooltip" title="Download Content"></i></a>
+                                }
+                            }
+                        </td>
+                        <td>
+                            <a href="#" role="link" data-toggle="modal" data-target="@("#modal-"+item.Id)">View Details</a>
+                            <div class="modal fade detailModal" role="dialog" id="@("modal-"+item.Id)">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">Order Details</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="card card-default">
+                                                <div class="card-header">
+                                                    <h5 class="card-title">Order Information</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <table class="table bg-light table-bordered">
+
+                                                        <tbody>
+                                                            <tr>
+                                                                <th scope="row">Selected Filters</th>
+                                                                <td>@(item.MediaFilters==null?"NULL": string.Join(",",item.MediaFilters.Select(x=>x.Name).ToArray()))</td>
+
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">Username</th>
+                                                                <td>@(item.User.UserName)</td>
+
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">Full Name</th>
+                                                                <td>@(item.User.FirstName + " "+ item.User.LastName)</td>
+
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">Contact Number</th>
+                                                                <td>@(item.User.Mobile)</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">Note</th>
+                                                                <td>@(item.Note)</td>
+                                                            </tr>
+                                                            @if (!string.IsNullOrEmpty(item.AudioFilePath))
+                                                            {
+                                                                <tr>
+                                                                    <th scope="row">Audio</th>
+                                                                    <td>
+                                                                        <audio controls preload="auto" style=" width:300px;">
+                                                                            <source src="@item.AudioFilePath" type="audio/mpeg">
+                                                                            Your browser does not support the audio element.
+                                                                        </audio>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                            @if (item.OrderStatus == Invitee.Entity.Enums.OrderStatus.InProcess)
+                                                            {
+                                                                <tr>
+                                                                    <th scope="row">Progress Started At</th>
+                                                                    <td>@item.ProgressStartedAt.Value.ToString("dd-MMM-yyyy h:mm tt")</td>
+                                                                </tr>
+                                                            }
+                                                            @if(!string.IsNullOrEmpty(item.Reason))
+                                                            {
+                                                                <tr>
+                                                                    <th scope="row">Reasons for rejection</th>
+                                                                    <td>@item.Reason</td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="card card-default">
+                                                <div class="card-header">
+                                                    <h5 class="card-title">SlideText Info</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <table class="table bg-light table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Id</th>
+                                                                <th>Original Text</th>
+                                                                <th>New Text</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var sl in item.OrderSlideTexts)
+                                                            {
+                                                                <tr>
+                                                                    <th>@sl.Id</th>
+                                                                    <td>@sl.SlideText.Text</td>
+                                                                    <td>@sl.NewSlideText</td>
+                                                                </tr>
+                                                            }
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer justify-content-between">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                            @*<button type="button" id="btnSave" class="btn btn-primary">Save changes</button>*@
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+@*Video Model PopUp*@
+<div class="modal fade" id="videoModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Video</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <video controls id="popupVideo" class="w-100">
+                </video>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                @*<button type="button" id="btnSave" class="btn btn-primary">Save changes</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Reject PopUp*@
+<div class="modal fade" id="rejectModal" role="dialog" data-orderid="">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Reason For Reject Order</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("RejectOrder", "Order", FormMethod.Post, new { @role = "form", enctype = "multipart/form-data" }))
+                {
+                    @Html.Hidden("OrderId")
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for='reason'>Reason</label>
+                                <textarea class="form-control" rows="5" id="reason"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="btnSaveReason" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Finish work popup*@
+<div class="modal fade" id="finishWorkModal" role="dialog" data-orderid="">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Upload Data</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("FinishOrder", "Order", FormMethod.Post, new { @role = "form", enctype = "multipart/form-data" }))
+                {
+                    @Html.Hidden("OrderId")
+                    <div class="row">
+                        <div class="col form-group">
+                            <label for='DFile'>DeliveryFile Thumbnail</label>
+                            <input class="form-control" type="file" name="DThumbnailFile" id="DThumbnailFile" required>
+                        </div>
+                        <div class="col">
+                            <label for='DFile'>DeliveryFile</label>
+                            <input class="form-control" type="file" name="DFile" id="DFile" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for='CFile'>ComplementaryFile Thumbnail</label>
+                            <input class="form-control" type="file" name="CThumbnailFile" id="CThumbnailFile" required>
+                        </div>
+                        <div class="col">
+                            <label for='CFile'>ComplementaryFile (Optional)</label>
+                            <input class="form-control" type="file" name="CFile" id="CFile" required>
+                        </div>
+                    </div>
+                    <p></p>
+                    <p>OR</p>
+                    <div class="form-group">
+                        <label for='DeliveryFileUrl'>Delivery External URL</label>
+                        <input class="form-control" type="text" name="DeliveryFileUrl" id="DeliveryFileUrl" placeholder="Enter any external downloadable url">
+                    </div>
+                    <div class="form-group">
+                        <label for='ComplementaryFileUrl'>Complementary External URL</label>
+                        <input class="form-control" type="text" name="ComplementaryFileUrl" id="ComplementaryFileUrl" placeholder="Enter any external downloadable url">
+                    </div>
+                }
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="btnSave" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section scripts{
+    <script>
+
+        function openImageGallery(modalId) {
+            $(`a[data-gallery="gallery${modalId}"]:eq(0)`).click()
+        }
+
+        $(document).ready(function () {
+
+            $("tr:contains('Rejected')").addClass('highlighter');
+
+            $(".mtable").DataTable({
+                "responsive": true,
+                "order": [[0, "desc"]],
+                columnDefs: [
+                    { responsivePriority: 1, targets: 0 },
+                    { responsivePriority: 2, targets: -1 },
+                    { responsivePriority: 2, targets: 7 }
+                ]
+            });
+
+            $('.btnPreview').on('click', function () {
+                $('#videoModal').modal('show');
+                var videoUrl = $(this).data('videourl');
+                $("#popupVideo").attr("src", videoUrl);
+            });
+            $('.mtable').on('hidden.bs.modal', '.detailModal', function () {
+                $(this).find('audio')[0].load();
+            });
+            $('.mtable').on('click', '.btnStartWork', function () {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This will start your progress for this order!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, Start It!'
+                }).then((result) => {
+                    if (result.value) {
+                        showPreloader(".table");
+                        var orderId = $(this).data('orderid');
+                        $.ajax({
+                            url: `/Order/StartOrderWork/${orderId}`,
+                            success: function (d) {
+                                swal.fire("Success!", `Your progress has been started for the order ${orderId} !`, "success").then((result) => {
+                                    location.reload();
+                                });
+                            },
+                            complete: function () {
+                                hidePreLoader('.table');
+                            }
+                        });
+                    }
+                });
+            });
+
+            $('.mtable').on('click', '.btnFinishWork', function () {
+                $('#finishWorkModal').attr('data-orderid', $(this).data('orderid')).modal('show');
+            });
+            $('#btnSave').on('click', function () {
+                showPreloader("#finishWorkModal .modal-content");
+                var orderId = $('#finishWorkModal').data('orderid');
+                $("#finishWorkModal #OrderId").val(orderId);
+                var formElement = $('#finishWorkModal').find('form:eq(0)')[0];
+                var formData = new FormData(formElement);
+                $.ajax({
+                    url: '/Order/FinishOrder',
+                    type: 'POST',
+                    data: formData,
+                    success: function (data) {
+                        if (data.success) {
+                            swal.fire("Success!", `Delivery has been added successfully`, "success").then((result) => {
+                                location.reload();
+                            });
+                        }
+                        else {
+                            swal.fire("Error!", `${data.data.join(',')}`, "error"); 
+                        }
+                    },
+                    error: function (err) {
+                        swal.fire("Error!", "An error has occured while performing this action.", "error");
+                    },
+                    complete: function () {
+                        hidePreLoader("#finishWorkModal .modal-content");
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            });
+
+            $('.mtable').on('click', '.btnReject', function () {
+                $('#rejectModal').attr('data-orderid', $(this).data('orderid')).modal('show');
+            });
+            $('#btnSaveReason').on('click', function () {
+                showPreloader("#rejectModal .modal-content");
+                //var Reason = $("#reason").val();
+                var OrderId = $('#rejectModal').data('orderid');
+                $("#rejectModal #OrderId").val(OrderId);    
+
+                var reason = $("#reason").val();
+                $.ajax({
+                    url: `/Order/RejectOrder/${OrderId}`,
+                    type: 'POST',
+                    data: JSON.stringify({"reason":reason}),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (d) {
+                        if (d.success) {
+                            swal.fire("Success!", `Order has been rejected successfully`, "success").then((result) => {
+                                location.reload();
+                            });
+                        }
+                        else {
+                            swal.fire("Error!", `${d.error}`, "error");
+                        }
+                    },
+                    error: function (err) {
+                        swal.fire("Error!", "An error has occured while performing this action.", "error");
+                    },
+                    complete: function () {
+                        hidePreLoader("#rejectModal .modal-content");
+                    },
+                    cache: false
+                });
+                console.log(order);
+            });
+        });
+    </script>
+}
